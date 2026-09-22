@@ -1,0 +1,15 @@
+*.csv
+*.pbix
+*.xlsx
+*.pptx
+*.docx
+*.log
+
+.venv
+.env
+.claude
+.superpowers
+
+DS_Store
+**/__pycache__
+**/__init__.py
