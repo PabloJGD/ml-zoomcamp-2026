@@ -20,7 +20,7 @@ def mutual_info_scores(df, features, y, decimals=2):
     return scores.round(decimals).sort_values(ascending=False)
 
 
-def train_logistic_regression(df_train, y_train, features, C=1.0):
+def train_logistic_regression(df_train, y_train, features, C=1.0, random_state=42):
     """
     Train a logistic regression model, one-hot encoding the categorical features.
 
@@ -29,6 +29,7 @@ def train_logistic_regression(df_train, y_train, features, C=1.0):
         y_train (np.ndarray): The training target vector.
         features (list): The columns to use as features.
         C (float, optional): The inverse of the regularization strength. Defaults to 1.0.
+        random_state (int, optional): Seed for the solver. Defaults to 42.
 
     Returns:
         tuple: A tuple containing the fitted DictVectorizer and the fitted model.
@@ -36,7 +37,7 @@ def train_logistic_regression(df_train, y_train, features, C=1.0):
     dv = DictVectorizer(sparse=False)
     X_train = dv.fit_transform(df_train[features].to_dict(orient='records'))
 
-    model = LogisticRegression(solver='liblinear', C=C, max_iter=1000, random_state=42)
+    model = LogisticRegression(solver='liblinear', C=C, max_iter=1000, random_state=random_state)
     model.fit(X_train, y_train)
 
     return dv, model
@@ -57,6 +58,23 @@ def predict(df, features, dv, model):
     """
     X = dv.transform(df[features].to_dict(orient='records'))
     return model.predict(X)
+
+
+def predict_proba(df, features, dv, model):
+    """
+    Predict the probability of the positive class using a fitted vectorizer and model.
+
+    Args:
+        df (pd.DataFrame): The dataset to predict on.
+        features (list): The columns to use as features.
+        dv (DictVectorizer): The fitted vectorizer.
+        model (LogisticRegression): The fitted model.
+
+    Returns:
+        np.ndarray: The probability of the positive class.
+    """
+    X = dv.transform(df[features].to_dict(orient='records'))
+    return model.predict_proba(X)[:, 1]
 
 
 def accuracy_for_features(df_train, y_train, df_val, y_val, features, C=1.0):
